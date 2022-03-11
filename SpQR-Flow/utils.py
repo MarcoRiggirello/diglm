@@ -7,7 +7,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers as tfkl
 from tensorflow.keras.activations import softmax, softplus
-from tensorflow_probability import bijectors as tfb
+from tensorflow_probability.bijectors import RationalQuadraticSpline
 
 
 class SplineBlock(tfkl.Layer):
@@ -119,7 +119,7 @@ class SplineInitializer(tf.Module):
             self._built = True
         if self._nn is not None:
             x = self._nn(x)
-        return tfb.RationalQuadraticSpline(self._bin_widths(x),
-                                           self._bin_heights(x),
-                                           self._knot_slopes(x),
-                                           range_min= -self._border)
+        return RationalQuadraticSpline(self._bin_widths(x),
+                                       self._bin_heights(x),
+                                       self._knot_slopes(x),
+                                       range_min= -self._border)
