@@ -14,12 +14,9 @@ class SplineBlock(tfkl.Layer):
     """ SplineBlock class
     """
     def __init__(self,
-                 units,
-                 hidden_layers=[32, 64, 64]):
-        super().__init__()
-        self._last_layer = tfkl.Dense(units,
-                                      activation="relu",
-                                      name="sqpr_nn_last_layer")
+                 hidden_layers=[32, 64, 64],
+                 **kwargs):
+        super().__init__(**kwargs)
         self._layers = []
         for i,n in enumerate(hidden_layers):
             self._layers.append(tfkl.Dense(n,
@@ -29,7 +26,7 @@ class SplineBlock(tfkl.Layer):
     def call(self, x):
         for layer in self._layers:
             x = layer(x)
-        return self._last_layer(x)
+        return x
 
 
 class BinsLayer(tfkl.Layer):
@@ -40,8 +37,8 @@ class BinsLayer(tfkl.Layer):
                  nbins,
                  border,
                  min_bin_gap=1e-3,
-                 name=None):
-        super().__init__(name=name)
+                 **kwargs):
+        super().__init__(**kwargs)
         self._nunits = nunits
         self._nbins = nbins
         self._border = border
@@ -63,8 +60,8 @@ class SlopesLayer(tfkl.Layer):
                  nunits,
                  nbins,
                  min_slope=1e-3,
-                 name=None):
-        super().__init__(name=name)
+                 **kwargs):
+        super().__init__(**kwargs)
         self._nunits = nunits
         self._nslopes = nbins - 1
         self._min_slope = min_slope
@@ -83,7 +80,7 @@ class SplineInitializer(tf.Module):
     def __init__(self,
                  nbins=128,
                  border=4,
-                 nn=None,
+                 nn=SplineBlock(),
                  min_bin_gap=1e-3,
                  min_slope=1e-3):
         super().__init__()
