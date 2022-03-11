@@ -5,9 +5,9 @@
 
 
 import tensorflow as tf
-from tensorflow.keras import layers as tfkl
-from tensorflow.keras.activations import softmax, softplus
-from tensorflow_probability.bijectors import RationalQuadraticSpline
+from tensorflow.python.keras import layers as tfkl
+from tensorflow.python.keras.activations import softmax, softplus
+from tensorflow_probability.python.bijectors import RationalQuadraticSpline
 
 
 class SplineBlock(tfkl.Layer):
