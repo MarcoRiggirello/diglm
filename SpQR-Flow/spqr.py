@@ -15,6 +15,8 @@ class NeuralSplineFlow(Bijector):
                          name=name)
         if splits is not None and masks is not None:
             raise ValueError("You can specify `splits` OR `masks`, not both.")
+        if splits is None and masks is None:
+            raise ValueError("You must specify 'splits' OR 'masks'.")
         self._spline_fn = spline_fn
         self._coupling_layers = []
         if splits is not None:
@@ -26,6 +28,7 @@ class NeuralSplineFlow(Bijector):
         if masks is not None:
             for i in masks:
                 self._coupling_layers.append(RealNVP(i, bijector_fn=self._spline_fn))
+
         self._bijector = Chain(bijectors=self._coupling_layers)
 
     def _forward(self, x):
