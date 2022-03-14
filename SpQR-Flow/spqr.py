@@ -37,5 +37,8 @@ class NeuralSplineFlow(Bijector):
     def _inverse(self, y):
         return self._bijector.inverse(y)
 
+    def _forward_log_det_jacobian(self, x):
+        return self._bijector.forward_log_det_jacobian(x)
+
     def _inverse_log_det_jacobian(self, y):
         return self._bijector.inverse_log_det_jacobian(y)
