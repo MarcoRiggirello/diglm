@@ -15,6 +15,7 @@ class SplineBlock(Layer):
             for i,n in enumerate(hidden_layers)
         ]
 
+    @function
     def call(self, units):
         if units.shape.rank == 1:
             units = expand_dims(units, axis=0)
@@ -43,6 +44,7 @@ class BinsLayer(Layer):
         self._dense = Dense(self._nunits * self._nbins, activation=softmax)
         self._reshape = Reshape((-1, self._nunits * self._nbins))
 
+    @function
     def call(self, units):
         if units.shape.rank == 1:
             units = expand_dims(units, axis=0)
@@ -69,6 +71,7 @@ class SlopesLayer(Layer):
         self._dense = Dense( self._nunits * self._nslopes, activation=softplus)
         self._reshape = Reshape((-1, self._nunits * self._nslopes))
 
+    @function
     def call(self, units):
         if units.shape.rank == 1:
             units = expand_dims(units, axis=0)
@@ -144,8 +147,8 @@ class NeuralSplineFlow(Bijector):
         self._coupling_layers = []
         if splits is not None:
             if splits < 2:
-                raise ValueError("nsplits must be greater than or equal to 2 ",
-                                 "(You must split you feature vec in at least two parts).")
+                raise ValueError("splits must be greater than or equal to 2 ",
+                                 "(You must split your feature vec in at least two parts).")
             for i in range(1,splits):
                 self._coupling_layers.append(RealNVP(fraction_masked=i/splits,
                                                          bijector_fn=self._spline_fn))
