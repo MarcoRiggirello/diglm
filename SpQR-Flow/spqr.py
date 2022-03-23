@@ -1,5 +1,5 @@
 # Marco Riggirello & Antoine Venturini
-from tensorflow import function, Module
+from tensorflow import function, expand_dims, Module
 from tensorflow.python.keras.layers import Layer, Dense, Reshape
 from tensorflow.python.keras.activations import softmax, softplus
 from tensorflow_probability.python.bijectors import Bijector, RealNVP, Chain, RationalQuadraticSpline
@@ -16,9 +16,14 @@ class SplineBlock(Layer):
         ]
 
     def call(self, units):
+        if units.shape.rank == 1:
+            units = expand_dims(units, axis=0)
+            reshape_output = lambda x: x[0]
+        else:
+            reshape_output = lambda x: x
         for layer in self._layers:
             units = layer(units)
-        return units
+        return reshape_output(units)
 
 
 class BinsLayer(Layer):
@@ -39,10 +44,15 @@ class BinsLayer(Layer):
         self._reshape = Reshape((-1, self._nunits * self._nbins))
 
     def call(self, units):
+        if units.shape.rank == 1:
+            units = expand_dims(units, axis=0)
+            reshape_output = lambda x: x[0]
+        else:
+            reshape_output = lambda x: x
         units = self._dense(units)
         units = self._reshape(units)
-        return units * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
-
+        units = units * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
+        return reshape_output(units)
 
 class SlopesLayer(Layer):
     """ SlopesLayer class
@@ -60,9 +70,15 @@ class SlopesLayer(Layer):
         self._reshape = Reshape((-1, self._nunits * self._nslopes))
 
     def call(self, units):
+        if units.shape.rank == 1:
+            units = expand_dims(units, axis=0)
+            reshape_output = lambda x: x[0]
+        else:
+            reshape_output = lambda x: x
         units = self._dense(units)
         units = self._reshape(units)
-        return units + self._min_slope
+        units = units + self._min_slope
+        return reshape_output(units)
 
 
 class SplineInitializer(Module):
