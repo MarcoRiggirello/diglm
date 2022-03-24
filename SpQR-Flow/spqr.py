@@ -142,21 +142,23 @@ class NeuralSplineFlow(Bijector):
             raise ValueError("You must specify 'splits' OR 'masks'.")
         if splits is not None and masks is not None:
             raise ValueError("You can specify `splits` OR `masks`, not both.")
-        self._spline_fn = SplineInitializer(**spline_kwargs)
-        self._coupling_layers = []
         if splits is not None:
             if splits < 2:
                 raise ValueError("splits must be greater than or equal to 2 ",
                                  "(You must split your feature vec in at least two parts).")
-            for i in range(1,splits):
-                self._coupling_layers.append(RealNVP(fraction_masked=i/splits,
-                                                         bijector_fn=self._spline_fn))
-                self._coupling_layers.append(RealNVP(fraction_masked=-i/splits,
-                                                         bijector_fn=self._spline_fn))
+            self._realnvp_args = [
+                dict(fraction_masked=i/splits, bijector_fn=SplineInitializer(**spline_kwargs))
+                for i in range(1-splits, splits) if i != 0
+            ]
         if masks is not None:
-            for i in masks:
-                self._coupling_layers.append(RealNVP(i, bijector_fn=self._spline_fn))
-
+            self._realnvp_args = [
+                dict(num_masked=i, bijector_fn=SplineInitializer(**spline_kwargs))
+                for i in masks
+            ]
+        self._coupling_layers = [
+            RealNVP(**splines, name=f"coupling_layer_{i}")
+            for i, splines in enumerate(self._realnvp_args)
+        ]
         self._bijector = Chain(bijectors=self._coupling_layers)
 
     def _forward(self, x):
