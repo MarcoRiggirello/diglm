@@ -1,31 +1,32 @@
-from tensorflow import Module, Variable, ones, zeros
+from tensorflow import Variable, ones, zeros, function
 from tensorflow_probability.python.distributions import JointDistributionNamedAutoBatched, MultivariateNormalDiag, TransformedDistribution
 from tensorflow_probability.python.glm import compute_predicted_linear_response
 
 
-class DIGLM(Module):
+class DIGLM(JointDistributionNamedAutoBatched):
     """ Deep Invertible Generalized Linear Model
     """
     def __init__(self,
                  bijector,
                  glm,
                  num_features,
-                 ):
-        super().__init__()
+                 name = "diglm",
+                 **kwargs):
         self._bijector = bijector
         self._glm = glm
         self._num_features = num_features
         self._beta = Variable(ones([self.num_features]), trainable=True)
         self._beta_0 = Variable(0., trainable=True)
-        self._latent_distribution = MultivariateNormalDiag(loc=zeros([self.num_features]),
-                                                           scale_diag=ones([self.num_features]))
-        self._joint_distribution = JointDistributionNamedAutoBatched(
-            {
-                "x": TransformedDistribution(distribution=self.latent_distribution,
-                                             bijector=self.bijector),
-                "y": lambda x: self.glm.as_distribution(self.eta_from_features(x))
-            }
-        )
+        model = {
+            "features": TransformedDistribution(
+                distribution=MultivariateNormalDiag(
+                    loc=zeros([self.num_features]),
+                    scale_diag=ones([self.num_features])
+                ),
+                bijector=self.bijector),
+            "labels": lambda features: self.glm.as_distribution(self.eta_from_features(features))
+        }
+        super().__init__(model, name=name, **kwargs)
 
     @property
     def bijector(self):
@@ -45,24 +46,13 @@ class DIGLM(Module):
         """
         return self._num_features
 
-    @property
-    def latent_distribution(self):
-        """ Return a tfd.Distribution representing the latent distribution
-        (a multivariate normal diagonal distribution).
-        """
-        return self._latent_distribution
-
-    @property
-    def joint_distribution(self):
-        """ Returns the features distribution as tfd.Distribution.
-        """
-        return self._joint_distribution
-
+    @function
     def latent_features(self, features):
         """ Compute latent variables from features.
         """
-        return self.bijector.forward(features)
+        return self.bijector.inverse(features)
 
+    @function
     def eta_from_features(self, features):
         """ Compute predicted linear response transforming
         features in latent space.
@@ -70,3 +60,10 @@ class DIGLM(Module):
         return compute_predicted_linear_response([self.latent_features(features)],
                                                  self._beta,
                                                  offset=self._beta_0)
+
+    @function
+    def __call__(self, features):
+        """ Applies the (inverse) bijector and computes
+        `mean(r)`, `var(mean)`, `d/dr mean(r)` via glm.
+        """
+        return self.glm(self.eta_from_features(features))
