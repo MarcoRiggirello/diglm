@@ -28,7 +28,7 @@ class SplineBlock(Layer):
                  hidden_layers=[512,512]):
         super().__init__()
         self._layers = [
-            Dense(n,activation="relu",name=f"spqr_nn_layer_{i}")
+            RobustDense(n,activation="relu",name=f"spqr_nn_layer_{i}")
             for i,n in enumerate(hidden_layers)
         ]
 
