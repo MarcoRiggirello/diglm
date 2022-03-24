@@ -129,7 +129,7 @@ class SplineInitializer(Module):
                                        self._knot_slopes(x),
                                        range_min= -self._border)
 
-class NeuralSplineFlow(Bijector):
+class NeuralSplineFlow(Chain):
     """ Neural Spline Flow bijector.
     """
     def __init__(self,
@@ -137,38 +137,25 @@ class NeuralSplineFlow(Bijector):
                  masks=None,
                  **spline_kwargs
                  ):
-        super().__init__(forward_min_event_ndims=1, name="nsf")
-        if splits is None and masks is None:
-            raise ValueError("You must specify 'splits' OR 'masks'.")
-        if splits is not None and masks is not None:
-            raise ValueError("You can specify `splits` OR `masks`, not both.")
-        if splits is not None:
+        if splits is not None and masks is None:
             if splits < 2:
                 raise ValueError("splits must be greater than or equal to 2 ",
                                  "(You must split your feature vec in at least two parts).")
-            self._realnvp_args = [
+            realnvp_args = [
                 dict(fraction_masked=i/splits, bijector_fn=SplineInitializer(**spline_kwargs))
                 for i in range(1-splits, splits) if i != 0
             ]
-        if masks is not None:
-            self._realnvp_args = [
+        elif masks is not None and splits is None:
+            realnvp_args = [
                 dict(num_masked=i, bijector_fn=SplineInitializer(**spline_kwargs))
                 for i in masks
             ]
+        else:
+            raise ValueError("You must specify `splits` OR `masks`, not both.")
+
         self._coupling_layers = [
             RealNVP(**splines, name=f"coupling_layer_{i}")
-            for i, splines in enumerate(self._realnvp_args)
+            for i, splines in enumerate(realnvp_args)
         ]
-        self._bijector = Chain(bijectors=self._coupling_layers)
+        super().__init__(bijectors=self._coupling_layers, name="nsf")
 
-    def _forward(self, x):
-        return self._bijector.forward(x)
-
-    def _inverse(self, y):
-        return self._bijector.inverse(y)
-
-    def _forward_log_det_jacobian(self, x):
-        return self._bijector.forward_log_det_jacobian(x)
-
-    def _inverse_log_det_jacobian(self, y):
-        return self._bijector.inverse_log_det_jacobian(y)
