@@ -1,5 +1,5 @@
 # Marco Riggirello & Antoine Venturini
-from tensorflow import concat, expand_dims, function, reshape, shape, Module
+from tensorflow import concat, expand_dims, function, reshape, shape, Module, Variable
 from tensorflow.python.keras.layers import Layer, Dense
 from tensorflow.python.keras.activations import softmax, softplus
 from tensorflow_probability.python.bijectors import RealNVP, Chain, RationalQuadraticSpline
@@ -132,20 +132,24 @@ class NeuralSplineFlow(Chain):
     def __init__(self,
                  splits=None,
                  masks=None,
-                 **spline_kwargs
+                 spline_params = {}
                  ):
-        if splits is not None and masks is None:
-            if splits < 2:
+
+        self._spline_params = spline_params
+        self._splits = splits
+        self._masks = masks
+        if self._splits is not None and self._masks is None:
+            if self._splits < 2:
                 raise ValueError("splits must be greater than or equal to 2 ",
                                  "(You must split your feature vec in at least two parts).")
             realnvp_args = [
-                dict(fraction_masked=i/splits, bijector_fn=SplineInitializer(**spline_kwargs))
-                for i in range(1-splits, splits) if i != 0
+                dict(fraction_masked=i/self._splits, bijector_fn=SplineInitializer(**self._spline_params))
+                for i in range(1-self._splits, self._splits) if i != 0
             ]
-        elif masks is not None and splits is None:
+        elif self._masks is not None and self._splits is None:
             realnvp_args = [
-                dict(num_masked=i, bijector_fn=SplineInitializer(**spline_kwargs))
-                for i in masks
+                dict(num_masked=i, bijector_fn=SplineInitializer(**self._spline_params))
+                for i in self._masks
             ]
         else:
             raise ValueError("You must specify `splits` OR `masks`, not both.")
