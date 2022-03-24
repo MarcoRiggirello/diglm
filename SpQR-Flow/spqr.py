@@ -2,7 +2,7 @@
 from tensorflow import concat, expand_dims, function, reshape, shape, Module
 from tensorflow.python.keras.layers import Layer, Dense
 from tensorflow.python.keras.activations import softmax, softplus
-from tensorflow_probability.python.bijectors import Bijector, RealNVP, Chain, RationalQuadraticSpline
+from tensorflow_probability.python.bijectors import RealNVP, Chain, RationalQuadraticSpline
 
 class RobustDense(Layer):
     """ Dense layer not prone to rank 1 input problem.
@@ -99,9 +99,6 @@ class SplineInitializer(Module):
         self._min_bin_gap = min_bin_gap
         self._min_slope = min_slope
         self._built = False
-        #self._bin_widths = None
-        #self._bin_heights = None
-        #self._knot_slopes = None
 
     @function
     def __call__(self,
