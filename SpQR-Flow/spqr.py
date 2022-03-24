@@ -1,8 +1,25 @@
 # Marco Riggirello & Antoine Venturini
-from tensorflow import function, expand_dims, Module
-from tensorflow.python.keras.layers import Layer, Dense, Reshape
+from tensorflow import concat, expand_dims, function, reshape, shape, Module
+from tensorflow.python.keras.layers import Layer, Dense
 from tensorflow.python.keras.activations import softmax, softplus
 from tensorflow_probability.python.bijectors import Bijector, RealNVP, Chain, RationalQuadraticSpline
+
+class RobustDense(Layer):
+    """ Dense layer not prone to rank 1 input problem.
+    """
+    def __init__(self, nunits, *args, **kwargs):
+        super().__init__()
+        self._dense = Dense(nunits, *args, **kwargs)
+
+    def call(self, units):
+        if units.shape.rank == 1:
+            units = expand_dims(units, axis=0)
+            reshape_output = lambda x: x[0]
+        else:
+            reshape_output = lambda x: x
+        units = self._dense(units)
+        return reshape_output(units)
+
 
 class SplineBlock(Layer):
     """ SplineBlock class
@@ -11,20 +28,14 @@ class SplineBlock(Layer):
                  hidden_layers=[512,512]):
         super().__init__()
         self._layers = [
-            Dense(n,activation="relu",name=f"spqr_nn_layer_{i}")
+            RobustDense(n,activation="relu",name=f"spqr_nn_layer_{i}")
             for i,n in enumerate(hidden_layers)
         ]
 
-    @function
     def call(self, units):
-        if units.shape.rank == 1:
-            units = expand_dims(units, axis=0)
-            reshape_output = lambda x: x[0]
-        else:
-            reshape_output = lambda x: x
         for layer in self._layers:
             units = layer(units)
-        return reshape_output(units)
+        return units
 
 
 class BinsLayer(Layer):
@@ -41,20 +52,14 @@ class BinsLayer(Layer):
         self._nbins = nbins
         self._border = border
         self._min_bin_gap = min_bin_gap
-        self._dense = Dense(self._nunits * self._nbins, activation=softmax)
-        self._reshape = Reshape((-1, self._nunits * self._nbins))
+        self._dense = RobustDense(self._nunits * self._nbins, activation=softmax)
 
     @function
     def call(self, units):
-        if units.shape.rank == 1:
-            units = expand_dims(units, axis=0)
-            reshape_output = lambda x: x[0]
-        else:
-            reshape_output = lambda x: x
         units = self._dense(units)
-        units = self._reshape(units)
-        units = units * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
-        return reshape_output(units)
+        out_shape = concat((shape(units)[:-1], (self._nunits, self._nbins)), 0)
+        units = reshape(units, out_shape)
+        return units * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
 
 class SlopesLayer(Layer):
     """ SlopesLayer class
@@ -68,20 +73,14 @@ class SlopesLayer(Layer):
         self._nunits = nunits
         self._nslopes = nbins - 1
         self._min_slope = min_slope
-        self._dense = Dense( self._nunits * self._nslopes, activation=softplus)
-        self._reshape = Reshape((-1, self._nunits * self._nslopes))
+        self._dense = RobustDense( self._nunits * self._nslopes, activation=softplus)
 
     @function
     def call(self, units):
-        if units.shape.rank == 1:
-            units = expand_dims(units, axis=0)
-            reshape_output = lambda x: x[0]
-        else:
-            reshape_output = lambda x: x
         units = self._dense(units)
-        units = self._reshape(units)
-        units = units + self._min_slope
-        return reshape_output(units)
+        out_shape = concat((shape(units)[:-1], (self._nunits, self._nslopes)), 0)
+        units = reshape(units, out_shape)
+        return units + self._min_slope
 
 
 class SplineInitializer(Module):
