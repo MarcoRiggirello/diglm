@@ -1,86 +1,69 @@
 # Marco Riggirello & Antoine Venturini
-from tensorflow import concat, expand_dims, function, reshape, shape, Module, Variable
-from tensorflow.python.keras.layers import Layer, Dense
+from tensorflow import expand_dims, reshape, Module
+from tensorflow.python.keras.layers import Layer, Dense, Activation
 from tensorflow.python.keras.activations import softmax, softplus
 from tensorflow_probability.python.bijectors import RealNVP, Chain, RationalQuadraticSpline
-
-class RobustDense(Layer):
-    """ Dense layer not prone to rank 1 input problem.
-    """
-    def __init__(self, nunits, *args, **kwargs):
-        super().__init__()
-        self._dense = Dense(nunits, *args, **kwargs)
-
-    def call(self, units):
-        if units.shape.rank == 1:
-            units = expand_dims(units, axis=0)
-            reshape_output = lambda x: x[0]
-        else:
-            reshape_output = lambda x: x
-        units = self._dense(units)
-        return reshape_output(units)
 
 
 class SplineBlock(Layer):
     """ SplineBlock class
     """
     def __init__(self,
-                 hidden_layers=[512,512]):
-        super().__init__()
-        self._layers = [
-            RobustDense(n,activation="relu",name=f"spqr_nn_layer_{i}")
-            for i,n in enumerate(hidden_layers)
-        ]
-
-    def call(self, units):
-        for layer in self._layers:
-            units = layer(units)
-        return units
-
-
-class BinsLayer(Layer):
-    """ BinsLayer class
-    """
-    def __init__(self,
                  nunits,
                  nbins,
                  border,
+                 hidden_layers=[512,512],
                  min_bin_gap=1e-3,
-                 name="bins"):
-        super().__init__(name=name)
+                 min_slope=1e-3):
+        super().__init__(name="spline_block")
         self._nunits = nunits
         self._nbins = nbins
+        self._nslopes = nbins - 1
         self._border = border
         self._min_bin_gap = min_bin_gap
-        self._dense = RobustDense(self._nunits * self._nbins, activation=softmax)
-
-    @function
-    def call(self, units):
-        units = self._dense(units)
-        out_shape = concat((shape(units)[:-1], (self._nunits, self._nbins)), 0)
-        units = reshape(units, out_shape)
-        return units * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
-
-class SlopesLayer(Layer):
-    """ SlopesLayer class
-    """
-    def __init__(self,
-                 nunits,
-                 nbins,
-                 min_slope=1e-3,
-                 name="slopes"):
-        super().__init__(name=name)
-        self._nunits = nunits
-        self._nslopes = nbins - 1
         self._min_slope = min_slope
-        self._dense = RobustDense( self._nunits * self._nslopes, activation=softplus)
+        self._hidden_layers = [
+            Dense(n,activation="relu",name=f"spqr_nn_layer_{i}")
+            for i,n in enumerate(hidden_layers)
+        ]
+        self._widths_layer = Dense(self._nunits * self._nbins, name="widths_layer")
+        self._heights_layer = Dense(self._nunits * self._nbins, name="heights_layer")
+        self._slopes_layer = Dense(self._nunits * self._nslopes, name="slopes_layer")
 
-    @function
     def call(self, units):
-        units = self._dense(units)
-        out_shape = concat((shape(units)[:-1], (self._nunits, self._nslopes)), 0)
-        units = reshape(units, out_shape)
-        return units + self._min_slope
+        if units.shape.rank == 1:
+            units = expand_dims(units, axis=0)
+            adjust_rank = lambda x: x[0]
+        else:
+            adjust_rank = lambda x: x
+        for layer in self._hidden_layers:
+            units = layer(units)
+
+        widths = adjust_rank(self._widths_layer(units))
+        widths = reshape(widths,
+                         widths
+                         .shape[:-1]
+                         .concatenate((self._nunits, self._nbins)))
+        widths = Activation(softmax)(widths)
+        widths = widths * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
+
+        heights = adjust_rank(self._heights_layer(units))
+        heights = reshape(heights,
+                          heights
+                          .shape[:-1]
+                          .concatenate((self._nunits, self._nbins)))
+        heights = Activation(softmax)(heights)
+        heights = heights * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
+
+        slopes = adjust_rank(self._slopes_layer(units))
+        slopes = reshape(slopes,
+                         slopes
+                         .shape[:-1]
+                         .concatenate((self._nunits, self._nslopes)))
+        slopes = Activation(softplus)(slopes)
+        slopes = slopes + self._min_slope
+
+        return widths, heights, slopes
 
 
 class SplineInitializer(Module):
@@ -95,35 +78,26 @@ class SplineInitializer(Module):
         super().__init__()
         self._nbins = nbins
         self._border = border
-        self._nn = SplineBlock(hidden_layers=hidden_layers)
         self._min_bin_gap = min_bin_gap
         self._min_slope = min_slope
+        self._hidden_layers = hidden_layers
         self._built = False
 
-    @function
     def __call__(self,
                  x,
                  nunits):
         if not self._built:
-            self._bin_widths = BinsLayer(nunits,
-                                         self._nbins,
-                                         self._border,
-                                         min_bin_gap=self._min_bin_gap,
-                                         name="w" )
-            self._bin_heights = BinsLayer(nunits,
-                                          self._nbins,
-                                          self._border,
-                                          min_bin_gap=self._min_bin_gap,
-                                          name="h" )
-            self._knot_slopes = SlopesLayer(nunits,
-                                            self._nbins,
-                                            min_slope=self._min_slope,
-                                            name="s" )
+            self._nn = SplineBlock(nunits,
+                                   self._nbins,
+                                   self._border,
+                                   hidden_layers=self._hidden_layers,
+                                   min_bin_gap=self._min_bin_gap,
+                                   min_slope=self._min_slope)
             self._built = True
-        x = self._nn(x)
-        return RationalQuadraticSpline(self._bin_widths(x),
-                                       self._bin_heights(x),
-                                       self._knot_slopes(x),
+        widths, heights, slopes = self._nn(x)
+        return RationalQuadraticSpline(widths,
+                                       heights,
+                                       slopes,
                                        range_min= -self._border)
 
 class NeuralSplineFlow(Chain):
