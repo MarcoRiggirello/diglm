@@ -62,6 +62,11 @@ class DIGLM(JointDistributionNamedAutoBatched):
                                                  offset=self._beta_0)
 
     @function
+    def weighted_log_prob(self, value, scaling_const=.1):
+        lpp = self.log_prob_parts(value)
+        return lpp["labels"] + scaling_const * lpp["features"]
+
+    @function
     def __call__(self, features):
         """ Applies the (inverse) bijector and computes
         `mean(r)`, `var(mean)`, `d/dr mean(r)` via glm.
