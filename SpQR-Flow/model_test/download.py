@@ -4,6 +4,7 @@ import sys
 import logging
 
 import requests
+from requests.exceptions import URLRequired, MissingSchema, InvalidSchema, InvalidURL
 
 
 def download_file(url, filename):
@@ -13,25 +14,25 @@ def download_file(url, filename):
 
     # check if file already exists
     if os.path.isfile(filename):
-        print(f'File {filename} exists.')
+        logging.info('File %s exists.', filename)
         return
 
     # create directory and download the file
     try:
-        os.makedirs(os.path.dirname(filename))
+        os.makedirs(os.path.dirname(os.path.abspath(filename)))
     except FileExistsError:
         pass
+
     # check if URL is valid
     try:
         response = requests.get(url, stream=True)
-    except requests.URLRequired:
-        logging.exception('Insert valid URL')
-        return
+    except (URLRequired, MissingSchema, InvalidSchema, InvalidURL) as err:
+        raise err
 
     with open(filename, 'wb') as newfile:
         step_size = 1000000
         file_size = response.header['Content-length']
-        print(f'File size: {file_size * 1e6 : .3f} MB \n')
+        logging.info('File size: %3f MB', (file_size * 1e6))
         for step, chunk in enumerate(
                     response.iter_content(chunk_size=step_size)):
             newfile.write(chunk)
@@ -39,7 +40,7 @@ def download_file(url, filename):
             progress = (step * step_size * 100 / file_size)
             sys.stdout.write(f'Download progress:{progress:.0f}% \r')
     if os.path.isfile(filename):
-        print(f'File {filename} downloaded succesfully')
+        logging.info('File %s downloaded succesfully', filename)
     else:
-        print('The file could not be downloaded :( \nTry to download it manually.')
+        logging.error('The file could not be downloaded :( \nTry to download it manually.')
     return
