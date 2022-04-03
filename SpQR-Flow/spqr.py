@@ -1,44 +1,136 @@
 # Marco Riggirello & Antoine Venturini
+from tensorflow import expand_dims, reshape, Module
+from tensorflow.python.keras.layers import Layer, Dense, Activation
+from tensorflow.python.keras.activations import softmax, softplus
+from tensorflow_probability.python.bijectors import RealNVP, Chain, RationalQuadraticSpline
 
-from tensorflow_probability.python.bijectors import Bijector, RealNVP, Chain
 
-from utils import SplineInitializer
+class SplineBlock(Layer):
+    """ SplineBlock class
+    """
+    def __init__(self,
+                 nunits,
+                 nbins,
+                 border,
+                 hidden_layers=[512,512],
+                 min_bin_gap=1e-3,
+                 min_slope=1e-3):
+        super().__init__(name="spline_block")
+        self._nunits = nunits
+        self._nbins = nbins
+        self._nslopes = nbins - 1
+        self._border = border
+        self._min_bin_gap = min_bin_gap
+        self._min_slope = min_slope
+        self._hidden_layers = [
+            Dense(n,activation="relu",name=f"spqr_nn_layer_{i}")
+            for i,n in enumerate(hidden_layers)
+        ]
+        self._widths_layer = Dense(self._nunits * self._nbins, name="widths_layer")
+        self._heights_layer = Dense(self._nunits * self._nbins, name="heights_layer")
+        self._slopes_layer = Dense(self._nunits * self._nslopes, name="slopes_layer")
 
-class NeuralSplineFlow(Bijector):
+    def call(self, units):
+        if units.shape.rank == 1:
+            units = expand_dims(units, axis=0)
+            adjust_rank = lambda x: x[0]
+        else:
+            adjust_rank = lambda x: x
+        for layer in self._hidden_layers:
+            units = layer(units)
+
+        widths = adjust_rank(self._widths_layer(units))
+        widths = reshape(widths,
+                         widths
+                         .shape[:-1]
+                         .concatenate((self._nunits, self._nbins)))
+        widths = Activation(softmax)(widths)
+        widths = widths * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
+
+        heights = adjust_rank(self._heights_layer(units))
+        heights = reshape(heights,
+                          heights
+                          .shape[:-1]
+                          .concatenate((self._nunits, self._nbins)))
+        heights = Activation(softmax)(heights)
+        heights = heights * (2 * self._border - self._nbins * self._min_bin_gap ) - self._min_bin_gap
+
+        slopes = adjust_rank(self._slopes_layer(units))
+        slopes = reshape(slopes,
+                         slopes
+                         .shape[:-1]
+                         .concatenate((self._nunits, self._nslopes)))
+        slopes = Activation(softplus)(slopes)
+        slopes = slopes + self._min_slope
+
+        return widths, heights, slopes
+
+
+class SplineInitializer(Module):
+    """ SplineInitializer class
+    """
+    def __init__(self,
+                 nbins=128,
+                 border=4,
+                 hidden_layers=[512,512],
+                 min_bin_gap=1e-3,
+                 min_slope=1e-3):
+        super().__init__()
+        self._nbins = nbins
+        self._border = border
+        self._min_bin_gap = min_bin_gap
+        self._min_slope = min_slope
+        self._hidden_layers = hidden_layers
+        self._built = False
+
+    def __call__(self,
+                 x,
+                 nunits):
+        if not self._built:
+            self._nn = SplineBlock(nunits,
+                                   self._nbins,
+                                   self._border,
+                                   hidden_layers=self._hidden_layers,
+                                   min_bin_gap=self._min_bin_gap,
+                                   min_slope=self._min_slope)
+            self._built = True
+        widths, heights, slopes = self._nn(x)
+        return RationalQuadraticSpline(widths,
+                                       heights,
+                                       slopes,
+                                       range_min= -self._border)
+
+class NeuralSplineFlow(Chain):
+    """ Neural Spline Flow bijector.
+    """
     def __init__(self,
                  splits=None,
                  masks=None,
-                 spline_fn=SplineInitializer(),
-                 name="neural_spline_flow"
+                 spline_params = {}
                  ):
-        super().__init__(forward_min_event_ndims=0,
-                         name=name)
-        if splits is not None and masks is not None:
-            raise ValueError("You can specify `splits` OR `masks`, not both.")
-        if splits is None and masks is None:
-            raise ValueError("You must specify 'splits' OR 'masks'.")
-        self._spline_fn = spline_fn
-        self._coupling_layers = []
-        if splits is not None:
-            for i in range(1,splits):
-                self._coupling_layers.append(RealNVP(fraction_masked=i/splits,
-                                                         bijector_fn=self._spline_fn))
-                self._coupling_layers.append(RealNVP(fraction_masked=-i/splits,
-                                                         bijector_fn=self._spline_fn))
-        if masks is not None:
-            for i in masks:
-                self._coupling_layers.append(RealNVP(i, bijector_fn=self._spline_fn))
 
-        self._bijector = Chain(bijectors=self._coupling_layers)
+        self._spline_params = spline_params
+        self._splits = splits
+        self._masks = masks
+        if self._splits is not None and self._masks is None:
+            if self._splits < 2:
+                raise ValueError("splits must be greater than or equal to 2 ",
+                                 "(You must split your feature vec in at least two parts).")
+            realnvp_args = [
+                dict(fraction_masked=i/self._splits, bijector_fn=SplineInitializer(**self._spline_params))
+                for i in range(1-self._splits, self._splits) if i != 0
+            ]
+        elif self._masks is not None and self._splits is None:
+            realnvp_args = [
+                dict(num_masked=i, bijector_fn=SplineInitializer(**self._spline_params))
+                for i in self._masks
+            ]
+        else:
+            raise ValueError("You must specify `splits` OR `masks`, not both.")
 
-    def _forward(self, x):
-        return self._bijector.forward(x)
+        self._coupling_layers = [
+            RealNVP(**splines, name=f"coupling_layer_{i}")
+            for i, splines in enumerate(realnvp_args)
+        ]
+        super().__init__(bijectors=self._coupling_layers, name="nsf")
 
-    def _inverse(self, y):
-        return self._bijector.inverse(y)
-
-    def _forward_log_det_jacobian(self, x):
-        return self._bijector.forward_log_det_jacobian(x)
-
-    def _inverse_log_det_jacobian(self, y):
-        return self._bijector.inverse_log_det_jacobian(y)
