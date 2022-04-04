@@ -1,4 +1,4 @@
-from tensorflow import Variable, ones, zeros, function
+from tensorflow import Variable, ones, zeros
 from tensorflow_probability.python.distributions import JointDistributionNamedAutoBatched, MultivariateNormalDiag, TransformedDistribution
 from tensorflow_probability.python.glm import compute_predicted_linear_response
 
@@ -46,13 +46,11 @@ class DIGLM(JointDistributionNamedAutoBatched):
         """
         return self._num_features
 
-    @function
     def latent_features(self, features):
         """ Compute latent variables from features.
         """
         return self.bijector.inverse(features)
 
-    @function
     def eta_from_features(self, features):
         """ Compute predicted linear response transforming
         features in latent space.
@@ -61,7 +59,10 @@ class DIGLM(JointDistributionNamedAutoBatched):
                                                  self._beta,
                                                  offset=self._beta_0)
 
-    @function
+    def weighted_log_prob(self, value, scaling_const=.1):
+        lpp = self.log_prob_parts(value)
+        return lpp["labels"] + scaling_const * lpp["features"]
+
     def __call__(self, features):
         """ Applies the (inverse) bijector and computes
         `mean(r)`, `var(mean)`, `d/dr mean(r)` via glm.
