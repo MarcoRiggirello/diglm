@@ -9,7 +9,18 @@ from requests.exceptions import URLRequired, MissingSchema, InvalidSchema, Inval
 
 def download_file(url, filename):
     """
-    Function handling download of the file object
+    Function handling download of file objects from URL addresses.
+    
+    :param url: URL address from where to download.
+    :type kind: str
+    :param filename: name of the downloaded file
+    :type kind: str or Path.like object
+    :raise URLRequired: if "url" is invalid
+    :raise MissingSchema: if "url" is invalid 
+    :raise InvalidSchema: if "url" is invalid
+    :raise InvalidURL: if "url" is invalid
+    :return: None
+ 
     """
 
     # check if file already exists
