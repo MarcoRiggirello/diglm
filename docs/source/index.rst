@@ -25,8 +25,9 @@ Contents
 
 .. toctree::
 
-   usage
    api
+   plot_utils_api
+   download_api
 
 Indices and tables
 ==================

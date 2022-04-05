@@ -12,9 +12,9 @@ def download_file(url, filename):
     Function handling download of file objects from URL addresses.
     
     :param url: URL address from where to download.
-    :type kind: str
+    :type url: str
     :param filename: name of the downloaded file
-    :type kind: str or Path.like object
+    :type filename: str or Path.like object
     :raise URLRequired: if "url" is invalid
     :raise MissingSchema: if "url" is invalid 
     :raise InvalidSchema: if "url" is invalid
