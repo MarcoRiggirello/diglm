@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'SpQR-Flow'
-copyright = '2022, Marco Riggirello, Antoine Venturini'
-author = 'Marco Riggirello, Antoine Venturini'
+copyright = '2022, M. Riggirello & A. Venturini'
+author = 'M. Riggirello & A. Venturini'
 
 # The full version, including alpha/beta/rc tags
-release = '1'
+release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------
