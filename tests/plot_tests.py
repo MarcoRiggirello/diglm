@@ -1,6 +1,7 @@
 """ Unit tests for the plot_utils module """
 import unittest
 import os
+import multiprocessing as mp
 
 import numpy as np
 import seaborn as sns
@@ -10,31 +11,38 @@ from plot_utils import multi_sns_plot, make_gif
 
 
 class TestPlotUtils(unittest.TestCase):
+    """
+    Tests on plot_utils
+    """
+
     def test_gif(self):
         """
         Tests make_gif function. Checks that a file is created.
         Produces a gif of a projectile motion.
         """
 
-        t_ = np.linspace(0., 1., 100)
-        x_ = t_
-        y_ = - 5 * (t_ ** 2)
+        time = np.linspace(0., 2., 100)
+        x_var = time
+        y_var = - 5 * (time ** 2)
         name_fig = []
         for i in range(100):
-            plt.figure(1)
-            plt.xlim(0., 1.5)
-            plt.ylim(0., -5)
+            plt.title('Projectile motion')
+            plt.xlim(0., 2.5)
+            plt.ylim(-20., 1.)
             plt.xlabel('x')
             plt.ylabel('y')
-            plt.errorbar(x_[i], y_[i], fmt='o')
+            plt.errorbar(x_var[:i], y_var[:i], color='blue')
+            plt.errorbar(x_var[i], y_var[i], fmt='o', color='orange')
             plt.savefig(f'projectile{i}.png')
             name_fig.append(f'projectile{i}.png')
+            plt.clf()
         make_gif(name_fig, output_gif='my_gif.gif', duration=0.03)
         self.assertTrue(os.path.isfile('my_gif.gif'))
         self.assertFalse(os.path.isfile('my_gif'))
-        #os.remove('my_gif.gif')
+        with mp.Pool(processes=4) as pool:
+            pool.map(os.remove, name_fig)
 
-        
+
     def test_plot(self):
         """
         Tests multi_sns_plot. Checks that a plot is actually created
