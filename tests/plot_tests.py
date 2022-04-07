@@ -1,7 +1,6 @@
 """ Unit tests for the plot_utils module """
 import unittest
 import os
-import multiprocessing as mp
 
 import numpy as np
 import seaborn as sns
@@ -37,11 +36,10 @@ class TestPlotUtils(unittest.TestCase):
             name_fig.append(f'projectile{i}.png')
             plt.clf()
         make_gif(name_fig, output_gif='my_gif.gif', duration=0.03)
+        # Tests that the file has been created
         self.assertTrue(os.path.isfile('my_gif.gif'))
-        self.assertFalse(os.path.isfile('my_gif'))
-        with mp.Pool(processes=4) as pool:
-            pool.map(os.remove, name_fig)
-
+        # Tests that images have been deleted
+        self.assertFalse(os.path.isfile(name_fig[0]))
 
     def test_plot(self):
         """
@@ -57,7 +55,7 @@ class TestPlotUtils(unittest.TestCase):
                        x_var='body_mass_g',
                        y_var='flipper_length_mm',
                        names=['Gentoo specie', 'Other species'],
-                       figname=namefig,
+                       title=namefig,
                        kind='kde')
         self.assertTrue(os.path.isfile(namefig))
 
