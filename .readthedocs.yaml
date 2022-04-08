@@ -17,8 +17,9 @@ build:
 
 python:
   # Install our package before building: enables autodoc and autosummary
-  - method: pip
-    path: .
+  Install:
+    - method: pip
+      path: .
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
