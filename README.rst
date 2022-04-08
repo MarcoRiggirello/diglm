@@ -1,6 +1,7 @@
 SpQR-Flow
 =========
 
+
 .. image:: https://readthedocs.org/projects/spqr-flow/badge/?version=latest
 :target: https://spqr-flow.readthedocs.io/en/latest/?badge=latest
 :alt: Documentation Status
