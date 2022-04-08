@@ -1,3 +1,6 @@
+"""
+DIGLM: Deeply Invertible Generalized Linear Model 
+"""
 from tensorflow import Variable, ones, zeros
 from tensorflow_probability.python.distributions import JointDistributionNamedAutoBatched, MultivariateNormalDiag, TransformedDistribution
 from tensorflow_probability.python.glm import compute_predicted_linear_response
