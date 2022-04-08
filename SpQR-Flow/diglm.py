@@ -3,6 +3,8 @@ from tensorflow_probability.python.distributions import JointDistributionNamedAu
 from tensorflow_probability.python.glm import compute_predicted_linear_response
 
 
+__version__ = "0.1"
+
 class DIGLM(JointDistributionNamedAutoBatched):
     """ Deep Invertible Generalized Linear Model
     """
