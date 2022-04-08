@@ -17,7 +17,7 @@ build:
 
 python:
   # Install our package before building: enables autodoc and autosummary
-  Install:
+  install:
     - method: pip
       path: .
 
