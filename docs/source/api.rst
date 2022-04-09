@@ -4,7 +4,7 @@ API
 .. autosummary::
    :toctree: generated
 
+   diglm
    spqr
-   utils
    plot_utils
    download
