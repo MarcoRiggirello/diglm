@@ -10,3 +10,6 @@ make_gif
 --------
 .. autofunction:: plot_utils.make_gif
 
+multi_sns_plot
+--------------
+.. autofunction:: plot_utils.multi_sns_plot
