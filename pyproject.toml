@@ -5,4 +5,6 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "SpQR-Flow"
 authors = [{name = "M. Riggirello & A. Venturini", email = "m.riggirello@studenti.unipi.it"}]
-dynamic = ["version", "description"]
+#dynamic = ["version", "description"]
+version = "0.1.0"
+description = "A normalizing-flow application"
