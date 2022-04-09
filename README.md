@@ -2,6 +2,7 @@
 ## (O *DIGLM* siamo incerti sul nome per ora.)
 
 
+[![Documentation Status](https://readthedocs.org/projects/spqr-flow/badge/?version=latest)](https://spqr-flow.readthedocs.io/en/latest/?badge=latest)
 [![Pylint](https://github.com/MarcoRiggirello/SpQR-Flow/actions/workflows/pylint.yml/badge.svg)](https://github.com/MarcoRiggirello/SpQR-Flow/actions/workflows/pylint.yml)
 
 L'articolo su cui basiamo la realizzazione di questa rete neurale con protagonisti
