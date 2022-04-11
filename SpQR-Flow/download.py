@@ -46,10 +46,10 @@ def download_file(url, filename):
         logging.info('File size: %3f MB', (file_size * 1e6))
         for step, chunk in enumerate(
                     response.iter_content(chunk_size=step_size)):
+            sys.stdout.flush()
             newfile.write(chunk)
             progress = (step * step_size * 100 / file_size)
             sys.stdout.write(f'Download progress:{progress:.0f}% \r')
-            sys.stdout.flush()
     if os.path.isfile(filename):
         logging.info('File %s downloaded succesfully', filename)
     else:
