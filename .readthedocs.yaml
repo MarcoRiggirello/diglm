@@ -12,8 +12,7 @@ sphinx:
 # Optionally set the version of Python and requirements required to build your docs
 python:
    version: 3.7
-   system_packages: true
    install:
-   - requirements: requirements.txt
+   - requirements: source/requirements.txt
    - method: pip
      path: .
