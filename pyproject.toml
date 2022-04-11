@@ -1,0 +1,9 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "SpQR-Flow"
+authors = [{name = "M. Riggirello & A. Venturini", email = "m.riggirello@studenti.unipi.it, a.venturini10@studenti.unipi.it"}]
+version = "0.1.0"
+description = "Some description..."
