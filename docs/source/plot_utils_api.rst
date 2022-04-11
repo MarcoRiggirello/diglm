@@ -8,7 +8,7 @@ results.
 
 make_gif
 --------
-.. autofunction:: plot_utils.make_gif
+.. autofunction:: SpQR-Flow.plot_utils.make_gif
 
 multi_sns_plot
 --------------
