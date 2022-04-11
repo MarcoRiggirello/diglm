@@ -4,6 +4,6 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "SpQR-Flow"
-authors = [{name = "M. Riggirello & A. Venturini", email = "m.riggirello@studenti.unipi.it, a.venturini10@studenti.unipi.it"}]
+authors = [{name = "M. Riggirello & A. Venturini", email = "antoinev151@gmail.com"}]
 version = "0.1.0"
 description = "Some description..."
