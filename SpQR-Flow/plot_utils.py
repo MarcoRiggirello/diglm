@@ -63,7 +63,7 @@ def multi_sns_plot(df_list,
     :type title: str
     :param display: Optional (Default=False). Open the resulting plot.
     :type display: bool
-    :param **kwargs: Extra key-word arguments to be passed to sns.
+    :param \*\*kwargs: Extra key-word arguments to be passed to sns.
     
     """
 
