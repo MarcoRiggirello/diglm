@@ -24,6 +24,7 @@ def make_gif(input_im,
     :param keep_im: Optional (Default=False). If True, the images used to create the gif are kept in memory; otherwise they are deleted.
     :type keep_im: bool
     :raise OSError: Incorrect file(s) name.
+    
     """
 
     # Check for correct paths
@@ -49,6 +50,7 @@ def multi_sns_plot(df_list,
                    **kwargs):
     """
     Plots more than one dataframe on the same canvas.
+    
     :param df_list: list of dataframes to be plotted.
     :type df_list: list[`pandas.DataFrame`]
     :param x_var: dataframe column label plotted on x axis.
@@ -61,7 +63,8 @@ def multi_sns_plot(df_list,
     :type title: str
     :param display: Optional (Default=False). Open the resulting plot.
     :type display: bool
-    :param **kwargs: Extra key-word arguments to be passed to sns. 
+    :param **kwargs: Extra key-word arguments to be passed to sns.
+    
     """
 
     # Create a new dataframe from concatenation of the datasets in df_list.
