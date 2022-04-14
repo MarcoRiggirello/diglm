@@ -17,7 +17,7 @@ def make_gif(input_im,
 
     :param input_im: file names of images to compose the animated gif.
     :type input_im: list[str]
-    :param output_gif: Optional (Default=\'my_gif.gif\'). Name of the output gif file.
+    :param output_gif: Optional (Default="my_gif.gif"). Name of the output gif file.
     :type output_gif: str
     :param duration: Optional (Default=0.5). Define the time interval (in seconds) between frames.
     :type duration: float
@@ -52,7 +52,7 @@ def multi_sns_plot(df_list,
     Plots more than one dataframe on the same canvas.
     
     :param df_list: list of dataframes to be plotted.
-    :type df_list: list[`pandas.DataFrame`]
+    :type df_list: list[pandas.DataFrame]
     :param x_var: dataframe column label plotted on x axis.
     :type x_var: str
     :param y_var: dataframe column label plotted on y axis.
