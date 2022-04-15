@@ -2,4 +2,4 @@ language: python
 install:
   - pip install requirements.txt
 script:
-  - python -m unittest tests.test_download.py
+  - python -m unittest tests.test_download
