@@ -1,5 +1,5 @@
-SpQR-Flow
-=========
+Diglm
+=====
 
 
 .. image:: https://readthedocs.org/projects/spqr-flow/badge/?version=latest

@@ -12,11 +12,11 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../SpQR-Flow/'))
+sys.path.insert(0, os.path.abspath('../../diglm/'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'SpQR-Flow'
+project = 'diglm'
 copyright = '2022, M. Riggirello & A. Venturini'
 author = 'M. Riggirello & A. Venturini'
 

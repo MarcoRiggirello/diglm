@@ -1,5 +1,5 @@
-# SpQR-Flow
-## (O *DIGLM* siamo incerti sul nome per ora.)
+# diglm
+## Deep Invertible Generalized Linear Model
 
 
 [![Documentation Status](https://readthedocs.org/projects/spqr-flow/badge/?version=latest)](https://spqr-flow.readthedocs.io/en/latest/?badge=latest)

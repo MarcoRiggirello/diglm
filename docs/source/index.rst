@@ -3,12 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SpQR-Flow's documentation!
-=====================================
+Welcome to diglm's documentation!
+=================================
 
-**SpQR-Flow** is a Python library where a normalizing flow hybrid model is
+**diglm** is a Python library where a normalizing flow hybrid model is
 implemented, following the idea in
-`this article <https://arxiv.org/pdf/1902.02767.pdf/>`_: 
+`this article <https://arxiv.org/1902.02767>`_: 
 the built normalizing flow parameters are trained with `keras.layer.Dense`
 and a Machine Learning algorithm to solve the *two* following problems:
 
