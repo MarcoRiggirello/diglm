@@ -175,6 +175,8 @@ class NeuralSplineFlow(Chain):
     :type splits: int
     :param masks: list of masks for variables.
     :type masks: list[int]
+    :param spline_params: dictionary of parameters for SplineInitializer.
+    :type spline_params: dict
     :raises: ValueError
     """
     def __init__(self,
