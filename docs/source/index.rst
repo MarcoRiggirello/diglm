@@ -44,6 +44,8 @@ Contents
 .. toctree::
 
    api
+   diglm
+   spqr
    plot_utils_api
    download_api
    notebooks/SpQR_nb
