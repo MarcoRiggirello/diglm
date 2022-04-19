@@ -48,7 +48,7 @@ Contents
    download_api
    notebooks/SpQR_nb
    notebooks/diglm_nb
-   notebooks/higgs_uci_nb
+   notebooks/higgs_uci
    notebooks/higgs_diglm_nb
    
 Tutorials
