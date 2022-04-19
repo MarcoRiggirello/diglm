@@ -45,9 +45,9 @@ Contents
 
    api
    plot_utils_api
-   download_api   
+   download_api
    notebooks/SpQR_nb
-   notebooks/diglm_nb
+   noteboks/diglm_nb
 
 Tutorials
 ---------
