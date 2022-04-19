@@ -21,7 +21,7 @@ jobs:
         pip install pylint
     - name: Adding working directory to PYTHONPATH
       run: |
-        export PYTHONPATH=$PYTHONPATH:$GITHUB_ACTION_PATH
+        export PYTHONPATH=$PYTHONPATH:$GITHUB_ACTION_PATH:$GITHUB_ENV:$GITHUB_EVENT_PATH:$GITHUB_PATH:$RUNNER_TEMP
     - name: Analysing the code with pylint ( >= 6.0)
       run: |
         pylint $(git ls-files '*.py') --fail-under 6.0
