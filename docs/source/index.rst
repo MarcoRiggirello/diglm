@@ -47,8 +47,10 @@ Contents
    plot_utils_api
    download_api
    notebooks/SpQR_nb
-   noteboks/diglm_nb
-
+   notebooks/diglm_nb
+   notebooks/higgs_uci_nb
+   notebooks/higgs_nb
+   
 Tutorials
 ---------
 
@@ -62,6 +64,16 @@ We wrote some notebooks to illustrate the functionalities of our algorithm:
    a [0, 1] label of the feature vectors. We demonstrate the capability of
    the model to be trained both for solve the logistic regression problem and
    the evaluation of feature distribution.
+
+A more complicated application
+------------------------------
+
+We trained the DIGLM model on a Monte Carlo `dataset simulating Beyond Standard Model events
+for a heavy Higgs boson <https://archive.ics.uci.edu/ml/datasets/HIGGS>_`.
+
+Follow the link to the :doc:`Higgs notebook <notebooks/diglm_nb>`.
+
+
 
 Indices and tables
 ==================
