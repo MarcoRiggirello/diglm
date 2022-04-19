@@ -4,6 +4,6 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "diglm"
-authors = [{name = "M. Riggirello & A. Venturini", email = "marcoriggirello@gmail.com, antoinev151@gmail.com"}]
+authors = [{name = "M. Riggirello", email = "marcoriggirello@gmail.com"}, {name = "A. Venturini", email = "antoinev151@gmail.com"}]
 version = "0.1.0"
 description = "diglm is a machine learning model built from TensorFlow utilities."
