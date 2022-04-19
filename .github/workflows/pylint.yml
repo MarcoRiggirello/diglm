@@ -21,7 +21,7 @@ jobs:
         pip install pylint
     - name: Adding diglm/ to PYTHONPATH
       run: |
-        export PYTHONPATH=$PYTHONPATH:~/diglm/
+        export PYTHONPATH=$PYTHONPATH:/home/runner/work/diglm/diglm
     - name: Analysing the code with pylint ( >= 6.0)
       run: |
         pylint $(git ls-files '*.py') --fail-under 6.0
