@@ -1,6 +1,8 @@
 API
 ===
 
+This is our API.
+
 .. autosummary::
 
    plot_utils.make_gif
