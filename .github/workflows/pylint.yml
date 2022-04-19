@@ -19,6 +19,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
+    - name: Adding diglm/ to PYTHONPATH
+      run: |
+        export PYTHONPATH=$PYTHONPATH:~/diglm/
     - name: Analysing the code with pylint ( >= 6.0)
       run: |
         pylint $(git ls-files '*.py') --fail-under 6.0
