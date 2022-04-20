@@ -6,7 +6,26 @@ from tensorflow_probability.python.bijectors import RealNVP, Chain, RationalQuad
 
 
 class SplineBlock(Layer):
-    """ SplineBlock class
+    """ `tf.keras` layers block used for learning parameters
+    (knots) of rational quadratic splines.
+
+    Inherits from :class: `tensorflow.keras.layers.Layer`.
+
+    :param nunits: Number of splines.
+    :type nunits: int
+    :param nbins: Number of bins for each spline. Note that the total number
+        of spline parameters is `3*nbins - 1`: `nbins` for x and y bin coordinates
+        respectively and `nbins - 1` for slopes.
+    :type nbins: int
+    :param border: The border of the splines. Spline bins are defined in the interval 
+        [-border, border], outside the relation between x and y is `y=x`.
+    :type border: float
+    :param hidden_layers: Dimensions of each dense layer, defaults to `[512, 512]`.
+    :type hidde_layers: list[int], optional
+    :param min_bin_gap: Minimum distance between subsequent bins, defaults to `1e-3`.
+    :type min_bin_gap: float, optional
+    :param min_slope: Mimimum spline slope in each bin, defaults to `1e-3`.
+    :type min_slope: float, optional
     """
     def __init__(self,
                  nunits,
@@ -15,6 +34,8 @@ class SplineBlock(Layer):
                  hidden_layers=[512,512],
                  min_bin_gap=1e-3,
                  min_slope=1e-3):
+        """ Constructor method.
+        """
         super().__init__(name="spline_block")
         self._nunits = nunits
         self._nbins = nbins
@@ -31,6 +52,14 @@ class SplineBlock(Layer):
         self._slopes_layer = Dense(self._nunits * self._nslopes, name="slopes_layer")
 
     def call(self, units):
+        """ Returns the units tensor transformed by the neural network.
+
+        :param units: Input tensor.
+        :type units: tensorflow.Tensor
+        :return: One tensor for bin x coordinates (widths), one for y coordinates
+            (heights) and one for slopes.
+        :rtype: tensorflow.Tensor
+        """
         if units.shape.rank == 1:
             units = expand_dims(units, axis=0)
             adjust_rank = lambda x: x[0]
@@ -67,7 +96,22 @@ class SplineBlock(Layer):
 
 
 class SplineInitializer(Module):
-    """ SplineInitializer class
+    """ Creates a rational quadratic spline with trainable parameters.
+
+    :param nbins: Number of spline bins, defaults to 128.
+    :type nbins: int, optional
+    :param border: Spline border, defaults to 4.
+    :type border: float, optional
+    :param hidden_layers: Dimensions of each dense layer, defaults to `[512, 512]`.
+    :type hidde_layers: list[int], optional
+    :param min_bin_gap: Minimum distance between subsequent bins, defaults to `1e-3`.
+    :type min_bin_gap: float, optional
+    :param min_slope: Mimimum spline slope in each bin, defaults to `1e-3`.
+    :type min_slope: float, optional
+
+    .. note::
+        For more informations about rational quadratic spline see
+        `the original article<https://arxiv.org/abs/1906.04032>` by Durkan et al.
     """
     def __init__(self,
                  nbins=128,
@@ -75,6 +119,8 @@ class SplineInitializer(Module):
                  hidden_layers=[512,512],
                  min_bin_gap=1e-3,
                  min_slope=1e-3):
+        """ Constructor method.
+        """
         super().__init__()
         self._nbins = nbins
         self._border = border
@@ -86,6 +132,15 @@ class SplineInitializer(Module):
     def __call__(self,
                  x,
                  nunits):
+        """ Returns a rational quadratic spline with learnable parameters.
+
+        :param x: The spline input.
+        :type x: tensorflow.Tensor
+        :param nunits: Number of splines.
+        :type nunits: int
+        :return: Rational quadratic spline with learnable parameters.
+        :rtype: tensorflow_probability.bijectors.RationalQuadraticSpline
+        """
         if not self._built:
             self._nn = SplineBlock(nunits,
                                    self._nbins,
@@ -102,13 +157,35 @@ class SplineInitializer(Module):
 
 class NeuralSplineFlow(Chain):
     """ Neural Spline Flow bijector.
+
+    This is a coupling layer type bijector with rational quadratic
+    spline acting as transformer. The coupling layer architecture
+    can be defined as a list of masks that decides which variable
+    is conditioned and which is the conditioner in each layer.
+    Suppose we want to transform 3 variables using the mask
+    [1,-1]. Here the negative number indicates the second part
+    of the split as conditioner.
+    The user may want to use a pre-defined mask list, specifying
+    only in how many chunks he wants to split the number of variables.
+    For this case the `splits` paramenter is defined. Note that number
+    of splits is different from number of layer. In 6 variables
+    `splits=3` is equivalent to `masks=[-4, -2, 2, 4]`
+
+    :param splits: number of splits for the variables.
+    :type splits: int
+    :param masks: list of masks for variables.
+    :type masks: list[int]
+    :param spline_params: dictionary of parameters for SplineInitializer.
+    :type spline_params: dict
+    :raises: ValueError
     """
     def __init__(self,
                  splits=None,
                  masks=None,
                  spline_params = {}
                  ):
-
+        """ Default constructor
+        """
         self._spline_params = spline_params
         self._splits = splits
         self._masks = masks

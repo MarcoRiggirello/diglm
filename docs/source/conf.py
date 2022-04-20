@@ -12,7 +12,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../diglm/'))
+sys.path.append(os.path.abspath('../../src/'))
 
 # -- Project information -----------------------------------------------------
 
@@ -31,10 +31,13 @@ release = '0.1'
 # ones.
 extensions = [
     'sphinx.ext.duration',
-    'sphinx.ext.doctest',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.intersphinx',
+    'sphinx.ext.doctest', # test inside the doc
+    'sphinx.ext.autodoc', # create documentation from docstrings
+    'sphinx.ext.autosummary', # create automatic api
+    'sphinx.ext.viewcode', # point to the source code
+    'sphinx.ext.intersphinx', # links to external documentation
+    'nbsphinx', # notebooks
+    'sphinxcontrib.bibtex', # bibliography
 ]
 
 intersphinx_mapping = {
@@ -42,6 +45,8 @@ intersphinx_mapping = {
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
 }
 intersphinx_disabled_domains = ['std']
+
+bibtex_bibfiles = ['references.bib']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

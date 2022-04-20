@@ -3,31 +3,48 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+=================================
 Welcome to diglm's documentation!
 =================================
 
-**diglm** is a Python library where a normalizing flow hybrid model is
-implemented, following the idea in
-`this article <https://arxiv.org/1902.02767>`_: 
-the built normalizing flow parameters are trained with `keras.layer.Dense`
-and a Machine Learning algorithm to solve the *two* following problems:
 
-1. Probability Density estimation
-2. Classification
+What is diglm
+=============
+
+**diglm** is the name of a project developed by Marco Riggirello and
+Antoine Venturini for an exam on Computing Methods for Experimental Particle
+Physics.
+
+What's in this documentatoion?
+==============================
+
+In the :doc:`introduction <intro>` we discuss the theory behind our model and
+it's purpose and characteristics.
+
+in the :doc:`turorial` section we presents a few `jupyter notebook <https://jupyter.org/>`_
+examples demonstrating the usage and the functionalities of our model. We also
+present an application of the :doc:`diglm` class on Particle Physics data, for
+classification and features estimation of simulated Beyond Standard Model events.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
 Contents
 --------
 
 .. toctree::
+   :titlesonly:
 
+   intro
+   tutorial
    api
+   spqr
+   diglm
    plot_utils_api
    download_api
+   
 
 Indices and tables
 ==================
