@@ -45,7 +45,8 @@ It is possible to compose in chain bijective function to improve expressivity of
 and speed up the computing time for the Jacobian: if at each step the bijector is made to act
 as the identity on some features, the Jacobian can be made triangular (:math:`\mathcal{O}(D)` instead
 of :math:`\mathcal{O}(D^3)` complexity). This is why we use coupling layers (see :cite:`Durkan2019`)
-of RealNVP type to define our bijector.
+of RealNVP (:cite:`Dinh2017RealNVP`)  
+type to define our bijector.
 
 GLM
 ===

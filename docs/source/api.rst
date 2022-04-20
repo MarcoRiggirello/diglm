@@ -6,7 +6,7 @@ This is our API.
 
 .. autosummary::
 
-   diglm.DIGLM
+   diglm.Diglm
    download.download_file
    plot_utils.make_gif
    plot_utils.multi_sns_plot

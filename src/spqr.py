@@ -111,7 +111,7 @@ class SplineInitializer(Module):
 
     .. note::
         For more informations about rational quadratic spline see
-        `the original article<https://arxiv.org/abs/1906.04032>` by Durkan et al.
+        `the original article <https://arxiv.org/abs/1906.04032>`_ by Durkan et al.
     """
     def __init__(self,
                  nbins=128,
@@ -156,20 +156,29 @@ class SplineInitializer(Module):
                                        range_min= -self._border)
 
 class NeuralSplineFlow(Chain):
-    """ Neural Spline Flow bijector.
+    """ 
+    Neural Spline Flow bijector.
 
     This is a coupling layer type bijector with rational quadratic
     spline acting as transformer. The coupling layer architecture
-    can be defined as a list of masks that decides which variable
-    is conditioned and which is the conditioner in each layer.
+    can be defined as a list of masks (or a number of splits)
+    that decides which variable is conditioned and which is the conditioner
+    in each layer (or better, in each transformation step).
     Suppose we want to transform 3 variables using the mask
-    [1,-1]. Here the negative number indicates the second part
-    of the split as conditioner.
-    The user may want to use a pre-defined mask list, specifying
-    only in how many chunks he wants to split the number of variables.
-    For this case the `splits` paramenter is defined. Note that number
-    of splits is different from number of layer. In 6 variables
-    `splits=3` is equivalent to `masks=[-4, -2, 2, 4]`
+    [1,-1], where the negative number indicates the second part
+    of the split as conditioner. Two coupling layers will be defined:
+    the first one maps the feature :math:`x_1` to itself and acts on features
+    :math:`x_0` and :math:`x_2`. A second coupling layer acts on these
+    transformed variables :math:`x_0^\prime, x_1, x_2^\prime` masking the
+    feature :math:`x_{-1}`, i.e. :math:`x_0` and trnsforming the others.
+    The user may want to specify only in how many chunks he wants to split 
+    the number of variables.
+    For this case the `splits` paramenter is defined: a corresponding 
+    number of coupling layers is created, where the *j-th* layer
+    has a fration *j / nsplit* of input features masked.
+
+    .. note::
+    See `the RealNVP documentation <https://www.tensorflow.org/probability/api_docs/python/tfp/bijectors/RealNVP>`_ for more infos.
 
     :param splits: number of splits for the variables.
     :type splits: int
