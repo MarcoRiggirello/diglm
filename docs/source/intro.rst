@@ -27,7 +27,8 @@ the whole algorithm can be *semi-supervised* trained.
 Normalizing flows and coupling layers
 =====================================
 
-A *normalizing flow* is a bijective and differentiable transformation :math:`g_{\theta}`,
+A *normalizing flow* (:cite:`papamakarios2021normalizing`, :cite:`review2021`) is a bijective and differentiable
+transformation :math:`g_{\theta}`,
 which can map a vector of features with D-dimensions *x* in a transformed vector
 :math:`g_\theta(x) = z` with D-dimension. Since the transformation :math:`g_\theta` is differentiable,
 the probability distribution of *z* and *x* are linked through a simple change of variable:
