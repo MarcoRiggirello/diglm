@@ -8,3 +8,5 @@ conditioner.
 
 .. automodule:: spqr
    :members:
+   :undoc-members:
+   :special-members:

@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.doctest', # test inside the doc
     'sphinx.ext.autodoc', # create documentation from docstrings
     'sphinx.ext.autosummary', # create automatic api
+    'sphinx.ext.viewcode', # point to the source code
     'sphinx.ext.intersphinx', # links to external documentation
     'nbsphinx', # notebooks
     'sphinxcontrib.bibtex', # bibliography
