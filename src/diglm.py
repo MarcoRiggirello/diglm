@@ -20,8 +20,8 @@ class DIGLM(JointDistributionNamedAutoBatched):
         self._bijector = bijector
         self._glm = glm
         self._num_features = num_features
-        self._beta = Variable(ones([self.num_features]), trainable=True)
-        self._beta_0 = Variable(0., trainable=True)
+        self._beta = Variable(ones([self.num_features]), trainable=True, name="glm_beta")
+        self._beta_0 = Variable(0., trainable=True, name="glm_beta_0")
         model = {
             "features": TransformedDistribution(
                 distribution=MultivariateNormalDiag(
