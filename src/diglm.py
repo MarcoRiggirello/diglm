@@ -1,8 +1,8 @@
 """
 Diglm: Deeply Invertible Generalized Linear Model
 """
-from tensorflow import Variable, ones, zeros
-from tensorflow_probability.python.distributions import JointDistributionNamed, MultivariateNormalDiag, TransformedDistribution
+from tensorflow import Variable, ones, zeros, expand_dims
+from tensorflow_probability.python.distributions import Independent, JointDistributionNamed, MultivariateNormalDiag, TransformedDistribution
 from tensorflow_probability.python.glm import compute_predicted_linear_response
 
 class Diglm(JointDistributionNamed):
@@ -41,9 +41,10 @@ class Diglm(JointDistributionNamed):
                     scale_diag=ones([self.num_features])
                 ),
                 bijector=self.bijector),
-            "labels": lambda features: self.glm.as_distribution(self.eta_from_features(features))
+            "labels": lambda features: Independent(self.glm.as_distribution(self.eta_from_features(features)),
+                                                   reinterpreted_batch_ndims=1)
         }
-        super().__init__(model, name=name, batch_ndims=0, **kwargs)
+        super().__init__(model, name=name, **kwargs)
 
     @property
     def bijector(self):
@@ -82,7 +83,7 @@ class Diglm(JointDistributionNamed):
         :return: Predicted linear response.
         :rtype: tensorflow.Tensor
         """
-        return compute_predicted_linear_response([self.latent_features(features)],
+        return compute_predicted_linear_response(expand_dims(self.latent_features(features), axis=-2),
                                                  self._beta,
                                                  offset=self._beta_0)
 
