@@ -9,5 +9,3 @@ Diglm
 
 .. automodule:: diglm
    :members:
-   :undoc-members:
-   :special-members:
