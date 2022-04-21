@@ -11,7 +11,7 @@ class Diglm(JointDistributionNamed):
     `Hybrid Models with Deep and Invertible Features<https://arxiv.org/abs/1902.02767>`_.
     See the original article for a detailed discussion of the model, its pros and cons
     and its possible applications.
-    Inherits from `tensorflow_probability.distributions.JointDistributionsNamedAutoBatched`.
+    Inherits from `tensorflow_probability.distributions.JointDistributionsNamed`.
 
     :param bijector: Bijector with learnable parameters
         for the invertible tranformation.
@@ -20,7 +20,7 @@ class Diglm(JointDistributionNamed):
     :type glm: tensorflow_probability.glm.ExponentialFamily
     :param num_feature: Dimensions of features space.
     :type num_features: int
-    :param **kwargs: Other arguments for `JointDitributionNamedAutoBatched`.
+    :param **kwargs: Other arguments for `JointDitributionNamed`.
     :type **kwargs: optional
     """
     def __init__(self,
