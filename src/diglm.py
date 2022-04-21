@@ -2,10 +2,10 @@
 Diglm: Deeply Invertible Generalized Linear Model
 """
 from tensorflow import Variable, ones, zeros
-from tensorflow_probability.python.distributions import JointDistributionNamedAutoBatched, MultivariateNormalDiag, TransformedDistribution
+from tensorflow_probability.python.distributions import JointDistributionNamed, MultivariateNormalDiag, TransformedDistribution
 from tensorflow_probability.python.glm import compute_predicted_linear_response
 
-class Diglm(JointDistributionNamedAutoBatched):
+class Diglm(JointDistributionNamed):
     """ Deep Invertible Generalized Linear Model using `tensorflow_probability`.
     This class implements the model described by Nalisnick et al. in 
     `Hybrid Models with Deep and Invertible Features<https://arxiv.org/abs/1902.02767>`.
@@ -43,7 +43,7 @@ class Diglm(JointDistributionNamedAutoBatched):
                 bijector=self.bijector),
             "labels": lambda features: self.glm.as_distribution(self.eta_from_features(features))
         }
-        super().__init__(model, name=name, **kwargs)
+        super().__init__(model, name=name, batch_ndims=0, **kwargs)
 
     @property
     def bijector(self):
