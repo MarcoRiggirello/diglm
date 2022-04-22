@@ -3,9 +3,6 @@ import os
 
 import numpy as np
 import imageio
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 def make_gif(input_im,
@@ -39,46 +36,3 @@ def make_gif(input_im,
     if not keep_im:
         for fig in input_im:
             os.remove(fig)
-
-
-def multi_sns_plot(df_list,
-                   x_var=None,
-                   y_var=None,
-                   names=None,
-                   title=None,
-                   display=False,
-                   **kwargs):
-    """
-    Plots more than one dataframe on the same canvas.
-    
-    :param df_list: list of dataframes to be plotted.
-    :type df_list: list[pandas.DataFrame]
-    :param x_var: dataframe column label plotted on x axis.
-    :type x_var: str
-    :param y_var: dataframe column label plotted on y axis.
-    :type y_var: str
-    :param names: labels for the dataframes plotted.
-    :type names: list[str]
-    :param title: Optional (Default=None). Title of the final plot.
-    :type title: str
-    :param display: Optional (Default=False). Open the resulting plot.
-    :type display: bool
-    :param \*\*kwargs: Extra key-word arguments to be passed to sns.
-    
-    """
-
-    # Create a new dataframe from concatenation of the datasets in df_list.
-    # The datasets are assigned a label according to `names` entries.
-    df_list = [df.assign(dataset=names[i]) for i, df in enumerate(df_list)]
-    concatenated = pd.concat(df_list,
-                             ignore_index=True, # avoids duplicated indices 
-                             )
-    # Plotting
-    sns.displot(data=concatenated,
-                x=x_var, y=y_var,
-                hue='dataset',
-                **kwargs)
-    if title is not None:
-        plt.savefig(title)
-    if display:
-        plt.show()
