@@ -2,15 +2,16 @@
 plot_utils
 ==========
 
-The ``plot_utils`` module collects some plotting
-and image formatting tools, ideal to display efficacely
-what's going on when training ML algorithms or to evaluate
-results.
+In the ``plot_utils`` module we have defined a function,
+``make_gif``,
+to realize animated gifs out of a list of figures.
+This is to us
+a fine way to visualize the imporvement during training of a
+machine learning algorithm, especially if they deal with
+reproducing patterns or images.
 
 make_gif
 --------
 .. autofunction:: plot_utils.make_gif
 
-multi_sns_plot
---------------
-.. autofunction:: plot_utils.multi_sns_plot
+		  
