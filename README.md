@@ -2,7 +2,7 @@
 ## Deep Invertible Generalized Linear Model
 
 
-[![Documentation Status](https://readthedocs.org/projects/spqr-flow/badge/?version=latest)](https://spqr-flow.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/diglm/badge/?version=latest)](https://diglm.readthedocs.io/en/latest/?badge=latest)
 [![Pylint](https://github.com/MarcoRiggirello/SpQR-Flow/actions/workflows/pylint.yml/badge.svg)](https://github.com/MarcoRiggirello/SpQR-Flow/actions/workflows/pylint.yml)
 [![Python application](https://github.com/MarcoRiggirello/SpQR-Flow/actions/workflows/python-app.yml/badge.svg)](https://github.com/MarcoRiggirello/SpQR-Flow/actions/workflows/python-app.yml)
 
