@@ -1,6 +1,5 @@
-=============
 Download_file
-=============
+-------------
 
 The ``download.download_file()`` function allows the user
 to download locally on his device files from the internet.

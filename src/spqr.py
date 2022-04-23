@@ -6,7 +6,8 @@ from tensorflow_probability.python.bijectors import RealNVP, Chain, RationalQuad
 
 
 class SplineBlock(Layer):
-    """ `tf.keras` layers block used for learning parameters
+    """
+    `tf.keras` layers block used for learning parameters
     (knots) of rational quadratic splines.
 
     Inherits from :class: `tensorflow.keras.layers.Layer`.
@@ -26,6 +27,7 @@ class SplineBlock(Layer):
     :type min_bin_gap: float, optional
     :param min_slope: Mimimum spline slope in each bin, defaults to `1e-3`.
     :type min_slope: float, optional
+
     """
     def __init__(self,
                  nunits,
@@ -110,8 +112,10 @@ class SplineInitializer(Module):
     :type min_slope: float, optional
 
     .. note::
+
         For more informations about rational quadratic spline see
         `the original article <https://arxiv.org/abs/1906.04032>`_ by Durkan et al.
+
     """
     def __init__(self,
                  nbins=128,

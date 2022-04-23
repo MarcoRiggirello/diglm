@@ -6,9 +6,10 @@ from tensorflow_probability.python.distributions import Independent, JointDistri
 from tensorflow_probability.python.glm import compute_predicted_linear_response
 
 class Diglm(JointDistributionNamed):
-    """ Deep Invertible Generalized Linear Model using `tensorflow_probability`.
+    """
+    Deep Invertible Generalized Linear Model using `tensorflow_probability`.
     This class implements the model described by Nalisnick et al. in 
-    `Hybrid Models with Deep and Invertible Features<https://arxiv.org/abs/1902.02767>`_.
+    `Hybrid Models with Deep and Invertible Features <https://arxiv.org/abs/1902.02767>`_.
     See the original article for a detailed discussion of the model, its pros and cons
     and its possible applications.
     Inherits from `tensorflow_probability.distributions.JointDistributionsNamed`.
@@ -22,6 +23,7 @@ class Diglm(JointDistributionNamed):
     :type num_features: int
     :param **kwargs: Other arguments for `JointDitributionNamed`.
     :type **kwargs: optional
+
     """
     def __init__(self,
                  bijector,
