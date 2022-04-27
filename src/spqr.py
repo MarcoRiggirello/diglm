@@ -223,5 +223,5 @@ class NeuralSplineFlow(Chain):
         """
         if nsplits < 2:
             raise ValueError("You must split your features in at least two pieces.")
-        masks = [int(nfeatures/i) for i in range(1-nsplits, nsplits) if i != 0]
+        masks = [int(nfeatures/i) for i in range(1-nsplits, nsplits) if not -1 <= i <= 1]
         return cls(masks, spline_params=spline_params)
