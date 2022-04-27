@@ -180,39 +180,23 @@ class NeuralSplineFlow(Chain):
     .. note::
     See `the RealNVP documentation <https://www.tensorflow.org/probability/api_docs/python/tfp/bijectors/RealNVP>`_ for more infos.
 
-    :param splits: number of splits for the variables.
-    :type splits: int
     :param masks: list of masks for variables.
     :type masks: list[int]
     :param spline_params: dictionary of parameters for SplineInitializer.
     :type spline_params: dict
-    :raises: ValueError
     """
     def __init__(self,
-                 splits=None,
-                 masks=None,
+                 masks,
                  spline_params = {}
                  ):
         """ Default constructor
         """
         self._spline_params = spline_params
-        self._splits = splits
         self._masks = masks
-        if self._splits is not None and self._masks is None:
-            if self._splits < 2:
-                raise ValueError("splits must be greater than or equal to 2 ",
-                                 "(You must split your feature vec in at least two parts).")
-            realnvp_args = [
-                dict(fraction_masked=i/self._splits, bijector_fn=SplineInitializer(**self._spline_params))
-                for i in range(1-self._splits, self._splits) if i != 0
-            ]
-        elif self._masks is not None and self._splits is None:
-            realnvp_args = [
+        realnvp_args = [
                 dict(num_masked=i, bijector_fn=SplineInitializer(**self._spline_params))
                 for i in self._masks
-            ]
-        else:
-            raise ValueError("You must specify `splits` OR `masks`, not both.")
+        ]
 
         self._coupling_layers = [
             RealNVP(**splines, name=f"coupling_layer_{i}")
@@ -220,3 +204,24 @@ class NeuralSplineFlow(Chain):
         ]
         super().__init__(bijectors=self._coupling_layers, name="nsf")
 
+    @classmethod
+    def from_split_features(cls,
+                            nsplits,
+                            nfeatures,
+                            spline_params={}
+                            ):
+        """ Constructs a NSF bijector in a simple way.
+
+        :param nsplits: The number of splits.
+        :type nsplits: int
+        :param nfeatures: The number of features (dimension of the distribution).
+        :type nfeatures int:
+
+        :return: A NeuralSplineFlow object
+
+        :raises: ValueError
+        """
+        if nsplits < 2:
+            raise ValueError("You must split your features in at least two pieces.")
+        masks = [int(nfeatures/i) for i in range(1-nsplits, nsplits) if not -1 <= i <= 1]
+        return cls(masks, spline_params=spline_params)
